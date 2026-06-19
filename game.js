@@ -240,7 +240,6 @@
     const cover = document.createElement("div");
     cover.className = "card-cover";
     cover.setAttribute("aria-hidden", "true");
-    cover.textContent = "✓";
     card.appendChild(cover);
 
     card.addEventListener("click", () => onCardClick(card, data));
