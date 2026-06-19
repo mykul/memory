@@ -409,7 +409,7 @@
       state.matched +
       " of " +
       TOTAL_PAIRS +
-      " pairs. So close!";
+      " pairs. You're gay!";
     statTime.textContent = fmtTime(GAME_SECONDS);
     statMoves.textContent = String(state.moves);
     statBest.textContent = best !== null ? fmtTime(best) : "—";
