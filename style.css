@@ -14,7 +14,7 @@
   --muted: #9aa3c7;
   --accent: #4363d8;
   --accent-2: #00c2a8;
-  --card-back: #3a4488; /* solid face-down color, fits the navy/blue theme */
+  --card-back: #31374b; /* solid face-down color, fits the navy/blue theme */
   --good: #2ecc71;
   --gap: 10px;        /* gap between cards, set by JS too */
   --card-size: 80px;  /* computed by JS to fit the screen */
