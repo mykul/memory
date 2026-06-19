@@ -290,15 +290,31 @@ body {
   background-repeat: no-repeat;
 }
 
-/* Matched cards: stay revealed, gently celebrate, then dim slightly */
+/* Matched cards: stay revealed, celebrate, then take a clear green "done"
+   look so they read very differently from the face-down cards. */
 .card.is-matched .card-face {
   animation: matched 0.5s ease;
+  box-shadow: 0 0 0 3px var(--good), 0 6px 14px rgba(0, 0, 0, 0.4);
 }
 .card.is-matched {
   cursor: default;
 }
+/* Green wash + check over the face (works for both shapes and photos). */
+.card.is-matched .card-face::after {
+  content: "✓";
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: inherit;
+  background: rgba(46, 204, 113, 0.82);
+  color: #fff;
+  font-size: calc(var(--card-size) * 0.42);
+  font-weight: 800;
+}
 .card.is-matched .card-inner {
-  filter: saturate(0.85);
+  filter: saturate(0.95);
   opacity: 0.78;
 }
 
