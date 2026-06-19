@@ -66,6 +66,15 @@
   const statBest = $("#stat-best");
   const againBtn = $("#again-btn");
   const changeBtn = $("#change-btn");
+  const resultLbList = $("#result-lb-list");
+  const resultLbScope = $("#result-lb-scope");
+  const startLbBtn = $("#start-lb-btn");
+  const lbOverlay = $("#leaderboard");
+  const lbList = $("#lb-list");
+  const lbScope = $("#lb-scope");
+  const lbCloseBtn = $("#lb-close-btn");
+
+  const SCOPE_LABEL = window.Leaderboard.isRemote ? "Global" : "This device";
 
   const TOTAL_PAIRS = PAIRS.length;
   hudTotal.textContent = String(TOTAL_PAIRS);
@@ -314,6 +323,13 @@
     statMoves.textContent = String(state.moves);
     statBest.textContent = best !== null ? fmtTime(best) : "—";
     showResult();
+
+    // Record the win on the leaderboard, then refresh the list.
+    submitAndRefresh({
+      name: state.playerName,
+      seconds: Math.round(seconds * 100) / 100,
+      moves: state.moves,
+    });
   }
 
   function lose() {
@@ -340,6 +356,12 @@
     statMoves.textContent = String(state.moves);
     statBest.textContent = best !== null ? fmtTime(best) : "—";
     showResult();
+
+    // No score to submit on a loss — just show what there is to beat.
+    renderLeaderboard(resultLbList, resultLbScope, {
+      limit: 5,
+      highlight: state.playerName,
+    });
   }
 
   function showResult() {
@@ -348,6 +370,86 @@
   }
   function hideResult() {
     resultOverlay.hidden = true;
+  }
+
+  /* ---------- Leaderboard UI ---------- */
+  async function submitAndRefresh(score) {
+    resultLbList.innerHTML = '<li class="lb-empty">Saving your time…</li>';
+    resultLbScope.textContent = SCOPE_LABEL;
+    try {
+      await window.Leaderboard.submit(score);
+    } catch (e) {
+      /* keep going — we can still show the existing list */
+    }
+    renderLeaderboard(resultLbList, resultLbScope, {
+      limit: 5,
+      highlight: score.name,
+    });
+  }
+
+  async function renderLeaderboard(listEl, scopeEl, opts) {
+    const limit = opts.limit || 10;
+    const highlight = (opts.highlight || "").trim().toLowerCase();
+    if (scopeEl) scopeEl.textContent = SCOPE_LABEL;
+    listEl.innerHTML = '<li class="lb-empty">Loading…</li>';
+
+    let rows;
+    try {
+      rows = await window.Leaderboard.list();
+    } catch (e) {
+      listEl.innerHTML =
+        '<li class="lb-empty">Couldn\'t load the leaderboard right now.</li>';
+      return;
+    }
+
+    if (!rows.length) {
+      listEl.innerHTML =
+        '<li class="lb-empty">No times yet — be the first!</li>';
+      return;
+    }
+
+    const myRank = rows.findIndex(
+      (r) => String(r.name || "").trim().toLowerCase() === highlight
+    );
+
+    listEl.innerHTML = "";
+    rows.slice(0, limit).forEach((r, i) => {
+      listEl.appendChild(makeLbRow(i + 1, r, i === myRank));
+    });
+
+    // If the player ranked outside the visible top, show their row too.
+    if (myRank >= limit) {
+      const sep = document.createElement("li");
+      sep.className = "lb-sep";
+      sep.textContent = "···";
+      listEl.appendChild(sep);
+      listEl.appendChild(makeLbRow(myRank + 1, rows[myRank], true));
+    }
+  }
+
+  function makeLbRow(rank, row, isMe) {
+    const li = document.createElement("li");
+    li.className = "lb-row" + (isMe ? " is-me" : "");
+    const medal = rank === 1 ? "🥇" : rank === 2 ? "🥈" : rank === 3 ? "🥉" : "";
+    li.innerHTML =
+      '<span class="lb-rank">' +
+      (medal || rank) +
+      "</span>" +
+      '<span class="lb-name"></span>' +
+      '<span class="lb-time">' +
+      fmtTime(row.seconds) +
+      "</span>";
+    li.querySelector(".lb-name").textContent = row.name || "—";
+    return li;
+  }
+
+  function openLeaderboard() {
+    lbOverlay.hidden = false;
+    lbCloseBtn.focus();
+    renderLeaderboard(lbList, lbScope, { limit: 10 });
+  }
+  function closeLeaderboard() {
+    lbOverlay.hidden = true;
   }
 
   /* ---------- Flow control ---------- */
@@ -402,6 +504,13 @@
 
   againBtn.addEventListener("click", () => startGame(state.playerName));
   changeBtn.addEventListener("click", goToStart);
+
+  startLbBtn.addEventListener("click", openLeaderboard);
+  lbCloseBtn.addEventListener("click", closeLeaderboard);
+  // Tap the dimmed backdrop to dismiss the leaderboard.
+  lbOverlay.addEventListener("click", (e) => {
+    if (e.target === lbOverlay) closeLeaderboard();
+  });
 
   // Re-fit cards on resize / orientation change.
   let resizeRAF = null;

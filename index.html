@@ -32,6 +32,10 @@
         <button id="play-btn" type="submit" class="btn btn-primary">Play</button>
       </form>
 
+      <button id="start-lb-btn" type="button" class="btn btn-ghost btn-lb">
+        🏆 Leaderboard
+      </button>
+
       <p class="hint">No sign-up. Just type a name and go.</p>
     </div>
   </section>
@@ -71,8 +75,17 @@
       <ul class="result-stats">
         <li><span class="stat-label">Time</span><span id="stat-time" class="stat-value">—</span></li>
         <li><span class="stat-label">Moves</span><span id="stat-moves" class="stat-value">—</span></li>
-        <li><span class="stat-label">Best time</span><span id="stat-best" class="stat-value">—</span></li>
+        <li><span class="stat-label">Your best</span><span id="stat-best" class="stat-value">—</span></li>
       </ul>
+
+      <section class="lb-block" aria-label="Leaderboard">
+        <div class="lb-head">
+          <span class="lb-title">Top times</span>
+          <span id="result-lb-scope" class="lb-scope"></span>
+        </div>
+        <ol id="result-lb-list" class="lb-list"></ol>
+      </section>
+
       <div class="overlay-actions">
         <button id="again-btn" class="btn btn-primary" type="button">Play again</button>
         <button id="change-btn" class="btn btn-ghost" type="button">Change name</button>
@@ -80,6 +93,20 @@
     </div>
   </div>
 
+  <!-- ===== Leaderboard overlay (opened from start screen) ===== -->
+  <div id="leaderboard" class="overlay" role="dialog" aria-modal="true" aria-labelledby="lb-title" hidden>
+    <div class="overlay-card">
+      <h2 id="lb-title" class="result-title">Leaderboard 🏆</h2>
+      <p id="lb-scope" class="result-msg"></p>
+      <ol id="lb-list" class="lb-list lb-list--full"></ol>
+      <div class="overlay-actions">
+        <button id="lb-close-btn" class="btn btn-primary" type="button">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="leaderboard.js"></script>
   <script src="game.js"></script>
 </body>
 </html>

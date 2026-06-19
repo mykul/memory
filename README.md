@@ -41,6 +41,55 @@ Open `game.js` and edit the config block at the top:
 Add more pairs by adding entries to the `PAIRS` array (and a matching entry in
 `SHAPES`), then make sure `ROW_PATTERN` sums to twice the number of pairs.
 
+## Leaderboard
+
+The end-of-game card shows a **Top times** list, and the start screen has a
+**🏆 Leaderboard** button. Each friend appears once, at their best time; your own
+row is highlighted. Only **wins** are recorded (a loss has no completion time).
+
+Out of the box it runs in **"this device only"** mode (scores in `localStorage`),
+so it works with zero setup. To make it a **shared/global** leaderboard your
+friends all see, connect Supabase (free):
+
+1. Create a project at [supabase.com](https://supabase.com).
+2. In the project's **SQL Editor**, run:
+
+   ```sql
+   create table public.scores (
+     id          bigint generated always as identity primary key,
+     name        text   not null check (char_length(name) between 1 and 16),
+     seconds     numeric not null check (seconds >= 0),
+     moves       integer not null check (moves >= 0),
+     created_at  timestamptz not null default now()
+   );
+
+   alter table public.scores enable row level security;
+
+   -- Anyone may read the leaderboard...
+   create policy "public read" on public.scores
+     for select using (true);
+
+   -- ...and submit a score, but not edit or delete others'.
+   create policy "public insert" on public.scores
+     for insert with check (true);
+   ```
+
+3. In **Project Settings → API**, copy the **Project URL** and the **anon public**
+   key into `config.js`:
+
+   ```js
+   window.MATCH_CONFIG = {
+     SUPABASE_URL: "https://YOURPROJECT.supabase.co",
+     SUPABASE_ANON_KEY: "eyJhbGciOi...",
+   };
+   ```
+
+4. Commit and push. The leaderboard is now shared across everyone.
+
+The anon key is **designed to be public**; Row Level Security (the policies above)
+restricts it to reading and inserting rows on `scores` only. To curb spam later,
+you can tighten the insert policy or add a rate limit in Supabase.
+
 ## Run locally
 
 It's a static site, so just open `index.html` in a browser. For the best result
