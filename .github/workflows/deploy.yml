@@ -2,7 +2,9 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: ["main"]
+    # GitHub Pages only deploys from the repo's default branch. This repo's
+    # default is the claude/* branch, so deploy on pushes to either it or main.
+    branches: ["main", "claude/brave-planck-3sguw7"]
   workflow_dispatch:
 
 permissions:
