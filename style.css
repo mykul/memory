@@ -225,6 +225,7 @@ body {
 
 /* ===== Cards ===== */
 .card {
+  position: relative;
   width: var(--card-size);
   height: var(--card-size);
   border-radius: var(--radius);
@@ -290,32 +291,36 @@ body {
   background-repeat: no-repeat;
 }
 
-/* Matched cards: stay revealed, celebrate, then take a clear green "done"
-   look so they read very differently from the face-down cards. */
-.card.is-matched .card-face {
-  animation: matched 0.5s ease;
-  box-shadow: 0 0 0 3px var(--good), 0 6px 14px rgba(0, 0, 0, 0.4);
-}
 .card.is-matched {
   cursor: default;
 }
-/* Green wash + check over the face (works for both shapes and photos). */
-.card.is-matched .card-face::after {
-  content: "✓";
+
+/* Green "matched" overlay. Sits on top of the whole card (above the flipping
+   inner), hidden until matched. A real element — reliable on iOS Safari where
+   pseudo-elements on backface-hidden 3D faces often fail to render. */
+.card-cover {
   position: absolute;
   inset: 0;
+  z-index: 2;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: inherit;
-  background: rgba(46, 204, 113, 0.82);
+  border-radius: var(--radius);
+  background: rgba(46, 204, 113, 0.88); /* var(--good) wash */
+  box-shadow: inset 0 0 0 3px rgba(255, 255, 255, 0.55),
+    0 6px 14px rgba(0, 0, 0, 0.4);
   color: #fff;
-  font-size: calc(var(--card-size) * 0.42);
+  font-size: calc(var(--card-size) * 0.46);
   font-weight: 800;
+  opacity: 0;
+  transform: scale(0.7);
+  pointer-events: none;
+  transition: opacity 0.2s ease,
+    transform 0.28s cubic-bezier(0.2, 0.8, 0.3, 1);
 }
-.card.is-matched .card-inner {
-  filter: saturate(0.95);
-  opacity: 0.78;
+.card.is-matched .card-cover {
+  opacity: 1;
+  transform: scale(1);
 }
 
 /* ===== Countdown line ===== */
@@ -510,6 +515,7 @@ body {
 /* Respect users who prefer reduced motion */
 @media (prefers-reduced-motion: reduce) {
   .card-inner { transition: transform 0.001s; }
+  .card-cover { transition: opacity 0.001s; transform: none; }
   .card.is-pop,
   .card.is-matched .card-face,
   #name.shake,

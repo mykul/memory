@@ -235,6 +235,14 @@
     inner.appendChild(face);
     card.appendChild(inner);
 
+    // Green "matched" overlay — a real element on top of the card (NOT a
+    // pseudo-element inside the 3D flip), so it renders reliably on iOS.
+    const cover = document.createElement("div");
+    cover.className = "card-cover";
+    cover.setAttribute("aria-hidden", "true");
+    cover.textContent = "✓";
+    card.appendChild(cover);
+
     card.addEventListener("click", () => onCardClick(card, data));
     return card;
   }
