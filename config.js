@@ -12,7 +12,7 @@
    ============================================================ */
 window.MATCH_CONFIG = {
   // e.g. "https://abcd1234.supabase.co"
-  SUPABASE_URL: "YOUR_SUPABASE_URL",
+  SUPABASE_URL: "https://mdphzojvhtsbebmubiih.supabase.co",
   // the "anon public" key from Project Settings → API
-  SUPABASE_ANON_KEY: "YOUR_SUPABASE_ANON_KEY",
+  SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1kcGh6b2p2aHRzYmVibXViaWloIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE4OTc0MzYsImV4cCI6MjA5NzQ3MzQzNn0.-rwZgRZTx7eZAPRG-_KDvFqhqPvYcFysEQ5GeYV3ODM",
 };
