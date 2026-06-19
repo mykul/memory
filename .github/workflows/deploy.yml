@@ -32,6 +32,22 @@ jobs:
           # Enable Pages (build type: GitHub Actions) if it isn't already,
           # so the first deploy doesn't fail with "Get Pages site failed".
           enablement: true
+      - name: Build image manifest
+        # List whatever images are in images/ so the game can use them.
+        # Just drop JPG/PNG/etc. into that folder — no code changes needed.
+        run: |
+          mkdir -p images
+          python3 - <<'PY'
+          import json, os
+          exts = {'.jpg', '.jpeg', '.png', '.gif', '.webp', '.avif'}
+          files = sorted(
+              f for f in os.listdir('images')
+              if os.path.splitext(f)[1].lower() in exts
+          )
+          with open('images/manifest.json', 'w') as fh:
+              json.dump(files, fh, indent=2)
+          print('Image manifest: %d file(s)' % len(files))
+          PY
       - name: Upload site
         uses: actions/upload-pages-artifact@v3
         with:

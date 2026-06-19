@@ -14,8 +14,7 @@
   --muted: #9aa3c7;
   --accent: #4363d8;
   --accent-2: #00c2a8;
-  --card-back-1: #2a3164;
-  --card-back-2: #3a4488;
+  --card-back: #3a4488; /* solid face-down color, fits the navy/blue theme */
   --good: #2ecc71;
   --gap: 10px;        /* gap between cards, set by JS too */
   --card-size: 80px;  /* computed by JS to fit the screen */
@@ -269,16 +268,11 @@ body {
   overflow: hidden;
 }
 
+/* Face-down cards: a clean solid color that fits the theme. */
 .card-back {
-  background: linear-gradient(145deg, var(--card-back-2), var(--card-back-1));
-  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.06),
+  background: var(--card-back);
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.07),
     0 6px 14px rgba(0, 0, 0, 0.35);
-}
-.card-back::after {
-  content: "?";
-  font-size: calc(var(--card-size) * 0.4);
-  font-weight: 800;
-  color: rgba(255, 255, 255, 0.22);
 }
 
 .card-face {
@@ -288,6 +282,12 @@ body {
 .card-face svg {
   width: 62%;
   height: 62%;
+}
+/* Photo faces fill the square card, cropping to center regardless of size. */
+.card-face--photo {
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 /* Matched cards: stay revealed, gently celebrate, then dim slightly */

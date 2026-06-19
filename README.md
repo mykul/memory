@@ -90,6 +90,20 @@ The anon key is **designed to be public**; Row Level Security (the policies abov
 restricts it to reading and inserting rows on `scores` only. To curb spam later,
 you can tighten the insert policy or add a rate limit in Supabase.
 
+## Custom card photos
+
+By default the cards show bold colored shapes. To use **your own photos**, just
+drop image files into the [`images/`](images/) folder and push — a deploy step
+regenerates `images/manifest.json` automatically and the game starts using them.
+No code changes needed.
+
+- Supported: `.jpg`, `.jpeg`, `.png`, `.gif`, `.webp`, `.avif` (mixing is fine).
+- Add **at least 7** images (7 pairs). With more than 7, each game randomly picks
+  7 for variety. With fewer than 7, it falls back to the colored shapes.
+- Any size works — cards are square and photos are cropped to fill from center.
+
+See [`images/README.md`](images/README.md) for details.
+
 ## Run locally
 
 It's a static site, so just open `index.html` in a browser. For the best result

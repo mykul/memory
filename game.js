@@ -46,6 +46,37 @@
     );
   }
 
+  /* ---------- Photo cards (optional) ----------
+     If at least TOTAL_PAIRS images are available, the game uses photos
+     instead of the colored shapes. The list comes from images/manifest.json
+     (auto-generated on deploy from whatever is in the images/ folder), or
+     from a manual window.MATCH_CARDS array. Falls back to shapes otherwise. */
+  const IMAGES_DIR = "images/";
+  let PHOTOS = []; // resolved image URLs, when in photo mode
+
+  async function loadPhotos() {
+    let list = Array.isArray(window.MATCH_CARDS) ? window.MATCH_CARDS : null;
+    if (!list) {
+      try {
+        const res = await fetch(IMAGES_DIR + "manifest.json", {
+          cache: "no-store",
+        });
+        if (res.ok) list = await res.json();
+      } catch (e) {
+        /* no manifest — stay in shape mode */
+      }
+    }
+    if (Array.isArray(list)) {
+      PHOTOS = list
+        .filter((n) => typeof n === "string" && n.trim())
+        .map((n) => (n.includes("/") ? n : IMAGES_DIR + n));
+    }
+  }
+
+  function photoMode() {
+    return PHOTOS.length >= TOTAL_PAIRS;
+  }
+
   /* ---------- DOM refs ---------- */
   const $ = (sel) => document.querySelector(sel);
   const startScreen = $("#start");
@@ -129,9 +160,20 @@
   }
 
   /* ---------- Build board ---------- */
+  // Choose TOTAL_PAIRS card faces for this round. In photo mode, pick a random
+  // subset so games with more than 7 images stay varied.
+  function pickPairs() {
+    if (photoMode()) {
+      return shuffle(PHOTOS.slice())
+        .slice(0, TOTAL_PAIRS)
+        .map((src) => ({ id: "img:" + src, image: src }));
+    }
+    return PAIRS.map((p) => ({ ...p }));
+  }
+
   function buildDeck() {
     const deck = [];
-    PAIRS.forEach((p) => {
+    pickPairs().forEach((p) => {
       deck.push({ ...p });
       deck.push({ ...p });
     });
@@ -141,6 +183,17 @@
   function buildBoard() {
     board.innerHTML = "";
     const deck = buildDeck();
+
+    // Preload this round's photos so flips reveal instantly.
+    if (photoMode()) {
+      new Set(deck.map((d) => d.image)).forEach((src) => {
+        if (src) {
+          const img = new Image();
+          img.src = encodeURI(src);
+        }
+      });
+    }
+
     let idx = 0;
 
     ROW_PATTERN.forEach((count) => {
@@ -170,8 +223,13 @@
 
     const face = document.createElement("div");
     face.className = "card-face";
-    face.style.background = data.color;
-    face.innerHTML = shapeSVG(data.shape);
+    if (data.image) {
+      face.classList.add("card-face--photo");
+      face.style.backgroundImage = 'url("' + encodeURI(data.image) + '")';
+    } else {
+      face.style.background = data.color;
+      face.innerHTML = shapeSVG(data.shape);
+    }
 
     inner.appendChild(back);
     inner.appendChild(face);
@@ -244,10 +302,10 @@
 
   function flip(card, data) {
     card.classList.add("is-flipped", "is-pop");
-    card.setAttribute(
-      "aria-label",
-      data.color + " " + data.shape + " card, face up"
-    );
+    const label = data.image
+      ? "photo card, face up"
+      : data.color + " " + data.shape + " card, face up";
+    card.setAttribute("aria-label", label);
     card.addEventListener(
       "animationend",
       () => card.classList.remove("is-pop"),
@@ -519,6 +577,9 @@
     cancelAnimationFrame(resizeRAF);
     resizeRAF = requestAnimationFrame(sizeCards);
   });
+
+  // Discover photos (if any) before the first game starts.
+  loadPhotos();
 
   // Pre-fill a remembered name for convenience.
   try {
