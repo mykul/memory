@@ -97,6 +97,7 @@
   const statBest = $("#stat-best");
   const againBtn = $("#again-btn");
   const changeBtn = $("#change-btn");
+  const resultLbBtn = $("#result-lb-btn");
   const resultLbList = $("#result-lb-list");
   const resultLbScope = $("#result-lb-scope");
   const startLbBtn = $("#start-lb-btn");
@@ -569,6 +570,7 @@
 
   againBtn.addEventListener("click", () => startGame(state.playerName));
   changeBtn.addEventListener("click", goToStart);
+  resultLbBtn.addEventListener("click", openLeaderboard);
 
   startLbBtn.addEventListener("click", openLeaderboard);
   lbCloseBtn.addEventListener("click", closeLeaderboard);
